@@ -1,3 +1,5 @@
+package SimPal;
+
 public class Token {
     final TokenType tokenType;
     final String lexeme;
@@ -12,6 +14,6 @@ public class Token {
     }
 
     public String toString() {
-        return tokenType + " " + lexeme + literal;
+        return tokenType + " " + lexeme + " " + literal;
     }
 }

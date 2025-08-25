@@ -10,6 +10,7 @@ import static SimPal.TokenType.*;
 /*
 ToDo:
 1. Handle Multiline comments
+2. Refactor the code
  */
 
 public class Scanner {

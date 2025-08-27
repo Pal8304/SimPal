@@ -44,9 +44,12 @@ public class SimPal {
         Scanner scanner = new Scanner(source);
         List<Token> tokens = scanner.scanTokens();
 
-        for (Token token : tokens) {
-            System.out.println(token);
-        }
+        Parser parser = new Parser(tokens);
+        Expression expression = parser.parse();
+
+        if(hadError) return;
+
+        System.out.println(new ASTPrinter().print(expression));
     }
 
     // ToDo: Add an abstraction like errorHandler or errorReporter
@@ -58,5 +61,13 @@ public class SimPal {
         System.err.println(
                 "[line " + lineNumber + "] Error" + where + ": " + errorMessage);
         hadError = true;
+    }
+
+    static void error(Token token, String message) {
+        if (token.tokenType == TokenType.EOF) {
+            report(token.line, " at end", message);
+        } else {
+            report(token.line, " at '" + token.lexeme + "'", message);
+        }
     }
 }

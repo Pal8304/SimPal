@@ -1,5 +1,7 @@
 package SimPal;
 
+import SimPal.Errors.SimPalRuntimeError;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,7 +12,10 @@ import java.util.List;
 
 public class SimPal {
 
+    private static final Interpreter interpreter = new Interpreter();
+
     static boolean hadError = false;
+    static boolean hadRuntimeError = false;
 
     public static void main(String[] args) throws IOException {
         if (args.length > 1) {
@@ -25,7 +30,9 @@ public class SimPal {
     private static void runFile(String filePath) throws IOException {
         byte[] fileBytes = Files.readAllBytes(Paths.get(filePath));
         run(new String(fileBytes, Charset.defaultCharset()));
+
         if (hadError) System.exit(65);
+        if (hadRuntimeError) System.exit(70);
     }
 
     private static void runPrompt() throws IOException {
@@ -47,9 +54,9 @@ public class SimPal {
         Parser parser = new Parser(tokens);
         Expression expression = parser.parse();
 
-        if(hadError) return;
+        if (hadError) return;
 
-        System.out.println(new ASTPrinter().print(expression));
+        interpreter.interpret(expression);
     }
 
     // ToDo: Add an abstraction like errorHandler or errorReporter
@@ -69,5 +76,10 @@ public class SimPal {
         } else {
             report(token.line, " at '" + token.lexeme + "'", message);
         }
+    }
+
+    static void runtimeError(SimPalRuntimeError simPalRuntimeError) {
+        System.err.println(simPalRuntimeError.getMessage() + "\n[line " + simPalRuntimeError.token.line + "]");
+        hadRuntimeError = true;
     }
 }

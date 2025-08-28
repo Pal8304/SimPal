@@ -19,6 +19,11 @@ public class GenerateAST {
                 "Literal  : Object value",
                 "Unary    : Token operator, Expression rightExpression"
         ));
+
+        defineAST(outputDirectory, "Statement", Arrays.asList(
+                "CompleteExpression : Expression expression",
+                "Print      : Expression expression"
+        ));
     }
 
     private static void defineAST(String outputDirectory, String baseName, List<String> types) throws IOException {

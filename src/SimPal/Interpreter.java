@@ -3,7 +3,9 @@ package SimPal;
 import SimPal.Errors.DivideByZeroError;
 import SimPal.Errors.SimPalRuntimeError;
 
-public class Interpreter implements Expression.Visitor<Object> {
+import java.util.List;
+
+public class Interpreter implements Expression.Visitor<Object>, Statement.Visitor<Void> {
 
     @Override
     public Object visitBinaryExpression(Expression.Binary expression) throws SimPalRuntimeError {
@@ -81,13 +83,31 @@ public class Interpreter implements Expression.Visitor<Object> {
         return null;
     }
 
-    public void interpret(Expression expression) {
+    @Override
+    public Void visitCompleteExpressionStatement(Statement.CompleteExpression statement) {
+        evaluateExpression(statement.expression);
+        return null;
+    }
+
+    @Override
+    public Void visitPrintStatement(Statement.Print statement) {
+        Object value = evaluateExpression(statement.expression);
+        System.out.println(stringify(value));
+        return null;
+    }
+
+    public void interpret(List<Statement> statements) {
         try {
-            Object value = evaluateExpression(expression);
-            System.out.println(stringify(value));
+            for (Statement statement : statements) {
+                execute(statement);
+            }
         } catch (SimPalRuntimeError simPalRuntimeError) {
             SimPal.runtimeError(simPalRuntimeError);
         }
+    }
+
+    private void execute(Statement statement){
+        statement.accept(this);
     }
 
     private String stringify(Object object) {

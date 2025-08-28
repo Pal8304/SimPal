@@ -1,5 +1,6 @@
 package SimPal;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static SimPal.TokenType.*;
@@ -20,7 +21,7 @@ operator       → "==" | "!=" | "<" | "<=" | ">" | ">="
 
 */
 
-/* New Complete Grammar
+/* New Grammar
 
 expression     → equality ;
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;
@@ -32,6 +33,17 @@ unary          → ( "!" | "-" ) unary
 primary        → NUMBER | STRING | "true" | "false" | "nil"
                | "(" expression ")" ;
  */
+
+/* Added Newer Grammar ( for handling statements )
+
+program        → statement* EOF ;
+statement      → completeExpression
+               | printStatement ;
+completeExpression       → expression ";" ; // expression is another name for completeExpression
+printStatement      → "print" expression ";" ;
+
+ */
+
 
 public class Parser {
 
@@ -45,17 +57,35 @@ public class Parser {
         this.tokens = tokens;
     }
 
-    Expression parse() {
-        try {
-            return expression();
-        } catch (ParseError parseError) {
-            return null;
+    List<Statement> parse() {
+        List<Statement> statements = new ArrayList<>();
+        while (!isAtEnd()) {
+            statements.add(statement());
         }
+        return statements;
     }
 
     private Expression expression() {
         return equality();
     }
+
+    private Statement statement() {
+        if (matchAnyTokenType(PRINT)) return printStatement();
+        return expressionStatement();
+    }
+
+    private Statement printStatement() {
+        Expression value = expression();
+        consume(SEMICOLON, "Expect ';' after value.");
+        return new Statement.Print(value);
+    }
+
+    private Statement expressionStatement() {
+        Expression expression = expression();
+        consume(SEMICOLON, "Expect ';' after expression.");
+        return new Statement.CompleteExpression(expression);
+    }
+
 
     private Expression equality() {
         Expression expression = comparison();

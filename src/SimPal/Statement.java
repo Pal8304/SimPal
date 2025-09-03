@@ -1,34 +1,71 @@
 package SimPal;
 
+import java.util.List;
+
 abstract class Statement {
-  interface Visitor<R> {
-    R visitCompleteExpressionStatement(CompleteExpression statement);
-    R visitPrintStatement(Print statement);
-  }
-  static class CompleteExpression extends Statement {
-    CompleteExpression(Expression expression) {
-      this.expression = expression;
+    interface Visitor<R> {
+        R visitBlockStatement(Block statement);
+
+        R visitCompleteExpressionStatement(CompleteExpression statement);
+
+        R visitPrintStatement(Print statement);
+
+        R visitVarStatement(Var statement);
     }
 
-    @Override
-    <R> R accept(Visitor<R> visitor) {
-      return visitor.visitCompleteExpressionStatement(this);
+    static class Block extends Statement {
+        Block(List<Statement> statements) {
+            this.statements = statements;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitBlockStatement(this);
+        }
+
+        final List<Statement> statements;
     }
 
-    final Expression expression;
-  }
-  static class Print extends Statement {
-    Print(Expression expression) {
-      this.expression = expression;
+    static class CompleteExpression extends Statement {
+        CompleteExpression(Expression expression) {
+            this.expression = expression;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitCompleteExpressionStatement(this);
+        }
+
+        final Expression expression;
     }
 
-    @Override
-    <R> R accept(Visitor<R> visitor) {
-      return visitor.visitPrintStatement(this);
+    static class Print extends Statement {
+        Print(Expression expression) {
+            this.expression = expression;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitPrintStatement(this);
+        }
+
+        final Expression expression;
     }
 
-    final Expression expression;
-  }
+    static class Var extends Statement {
+        Var(Token name, Expression initializer) {
+            this.name = name;
+            this.initializer = initializer;
+        }
 
-  abstract <R> R accept(Visitor<R> visitor);
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitVarStatement(this);
+        }
+
+        final Token name;
+        final Expression initializer;
+    }
+
+    abstract <R> R accept(Visitor<R> visitor);
 }

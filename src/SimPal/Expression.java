@@ -2,6 +2,8 @@ package SimPal;
 
 abstract class Expression {
     interface Visitor<R> {
+        R visitAssignExpression(Assign expression);
+
         R visitBinaryExpression(Binary expression);
 
         R visitGroupingExpression(Grouping expression);
@@ -9,6 +11,23 @@ abstract class Expression {
         R visitLiteralExpression(Literal expression);
 
         R visitUnaryExpression(Unary expression);
+
+        R visitVariableExpression(Variable expression);
+    }
+
+    static class Assign extends Expression {
+        Assign(Token name, Expression value) {
+            this.name = name;
+            this.value = value;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitAssignExpression(this);
+        }
+
+        final Token name;
+        final Expression value;
     }
 
     static class Binary extends Expression {
@@ -67,6 +86,19 @@ abstract class Expression {
 
         final Token operator;
         final Expression rightExpression;
+    }
+
+    static class Variable extends Expression {
+        Variable(Token name) {
+            this.name = name;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitVariableExpression(this);
+        }
+
+        final Token name;
     }
 
     abstract <R> R accept(Visitor<R> visitor);

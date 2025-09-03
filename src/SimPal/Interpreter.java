@@ -7,6 +7,15 @@ import java.util.List;
 
 public class Interpreter implements Expression.Visitor<Object>, Statement.Visitor<Void> {
 
+    Environment environment = new Environment();
+
+    @Override
+    public Object visitAssignExpression(Expression.Assign expression) {
+        Object value = evaluateExpression(expression.value);
+        environment.assign(expression.name, value);
+        return value;
+    }
+
     @Override
     public Object visitBinaryExpression(Expression.Binary expression) throws SimPalRuntimeError {
         Object leftExpression = evaluateExpression(expression.leftExpression);
@@ -84,6 +93,11 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     @Override
+    public Object visitVariableExpression(Expression.Variable expression) {
+        return environment.get(expression.name);
+    }
+
+    @Override
     public Void visitCompleteExpressionStatement(Statement.CompleteExpression statement) {
         evaluateExpression(statement.expression);
         return null;
@@ -96,6 +110,35 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
         return null;
     }
 
+    @Override
+    public Void visitVarStatement(Statement.Var statement) {
+        Object value = null;
+        if (statement.initializer != null) {
+            value = evaluateExpression(statement.initializer);
+        }
+        environment.define(statement.name.lexeme, value);
+        return null;
+    }
+
+    @Override
+    public Void visitBlockStatement(Statement.Block statement) {
+        executeBlock(statement.statements, new Environment(environment));
+        return null;
+    }
+
+    private void executeBlock(List<Statement> statements, Environment environment) {
+        Environment previous = this.environment;
+        try {
+            this.environment = environment;
+
+            for (Statement statement : statements) {
+                execute(statement);
+            }
+        } finally {
+            this.environment = previous;
+        }
+    }
+
     public void interpret(List<Statement> statements) {
         try {
             for (Statement statement : statements) {
@@ -106,7 +149,7 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
         }
     }
 
-    private void execute(Statement statement){
+    private void execute(Statement statement) {
         statement.accept(this);
     }
 

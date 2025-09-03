@@ -26,6 +26,16 @@ public class ASTPrinter implements Expression.Visitor<String> {
         return expression.value.toString();
     }
 
+    @Override
+    public String visitAssignExpression(Expression.Assign expression) {
+        return "";
+    }
+
+    @Override
+    public String visitVariableExpression(Expression.Variable expression) {
+        return "";
+    }
+
     private String parenthesize(String name, Expression... expressions) {
         StringBuilder builder = new StringBuilder();
 

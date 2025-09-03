@@ -1,6 +1,7 @@
 package SimPal;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static SimPal.TokenType.*;
@@ -26,7 +27,11 @@ operator       → "==" | "!=" | "<" | "<=" | ">" | ">="
 expression     → assignment ;
 
 assignment     → IDENTIFIER "=" assignment
-               | equality ;
+               | logic_or ;
+
+logic_or       → logic_and ( "or" logic_and )* ;
+
+logic_and      → equality ( "and" equality )* ;
 
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 
@@ -52,11 +57,23 @@ program        → declaration* EOF ;
 declaration    → varDeclaration
                | statement ;
 
-varDecl        → "var" IDENTIFIER ( "=" expression )? ";" ;
+varDeclaration        → "var" IDENTIFIER ( "=" expression )? ";" ;
 
 statement      → completeExpression
+                | forStatement
+               | ifStatement
                | printStatement
-               | block;
+               | whileStatement
+               | block ;
+
+whileStatement      → "while" "(" expression ")" statement ;
+
+forStatement        → "for" "(" ( varDeclaration | completeExpression | ";" )
+                 expression? ";"
+                 expression? ")" statement ;
+
+ifStatement         → "if" "(" expression ")" statement
+               ( "else" statement )? ;
 
 block          → "{" declaration* "}" ;
 
@@ -111,15 +128,87 @@ public class Parser {
     }
 
     private Statement statement() {
+        if (matchAnyTokenType(FOR)) return forStatement();
+        if (matchAnyTokenType(IF)) return ifStatement();
         if (matchAnyTokenType(PRINT)) return printStatement();
+        if (matchAnyTokenType(WHILE)) return whileStatement();
         if (matchAnyTokenType(LEFT_BRACE)) return new Statement.Block(block());
         return expressionStatement();
+    }
+
+    /*
+    ToDO: Add Support for break and continue statements
+     */
+    private Statement forStatement() {
+        consume(LEFT_PAREN, "Expect '(' after 'for'.");
+
+        Statement initializer;
+        if (matchAnyTokenType(SEMICOLON)) {
+            initializer = null;
+        } else if (matchAnyTokenType(VAR)) {
+            initializer = varDeclaration();
+        } else {
+            initializer = expressionStatement();
+        }
+
+        Expression condition = null;
+        if (!checkTokenType(SEMICOLON)) {
+            condition = expression();
+        }
+        consume(SEMICOLON, "Expect ';' after loop condition.");
+
+        Expression increment = null;
+        if (!checkTokenType(RIGHT_PAREN)) {
+            increment = expression();
+        }
+        consume(RIGHT_PAREN, "Expect ')' after for clauses.");
+
+        Statement body = statement();
+
+        if (increment != null) {
+            body = new Statement.Block(Arrays.asList(
+                    body, new Statement.CompleteExpression(increment)
+            ));
+        }
+
+        if (condition == null) condition = new Expression.Literal(true);
+        body = new Statement.While(condition, body);
+
+        if (initializer != null) {
+            body = new Statement.Block(Arrays.asList(initializer, body));
+        }
+
+        return body;
+    }
+
+    private Statement ifStatement() {
+        consume(LEFT_PAREN, "Expect '(' after 'if'.");
+        Expression condition = expression();
+        consume(RIGHT_PAREN, "Expect ')' after if condition.");
+
+        Statement thenBranch = statement();
+        Statement elseBranch = null;
+
+        if (matchAnyTokenType(ELSE)) {
+            elseBranch = statement();
+        }
+
+        return new Statement.If(condition, thenBranch, elseBranch);
     }
 
     private Statement printStatement() {
         Expression value = expression();
         consume(SEMICOLON, "Expect ';' after value.");
         return new Statement.Print(value);
+    }
+
+    private Statement whileStatement() {
+        consume(LEFT_PAREN, "Expect '(' after 'while'.");
+        Expression condition = expression();
+        consume(RIGHT_PAREN, "Expect ')' after condition.");
+        Statement body = statement();
+
+        return new Statement.While(condition, body);
     }
 
     private List<Statement> block() {
@@ -143,7 +232,7 @@ public class Parser {
     }
 
     private Expression assignment() {
-        Expression expression = equality();
+        Expression expression = orExpression();
 
         if (matchAnyTokenType(EQUAL)) {
             Token equals = getPreviousToken();
@@ -155,6 +244,30 @@ public class Parser {
             }
             // We report an error if the left-hand side isn’t a valid assignment target, but we don’t throw it because the parser isn’t in a confused state where we need to go into panic mode and synchronize.
             error(equals, "Invalid assignment target.");
+        }
+
+        return expression;
+    }
+
+    private Expression orExpression() {
+        Expression expression = andExpression();
+
+        while (matchAnyTokenType(OR)) {
+            Token operator = getPreviousToken();
+            Expression rightExpression = andExpression();
+            expression = new Expression.Logical(expression, operator, rightExpression);
+        }
+
+        return expression;
+    }
+
+    private Expression andExpression() {
+        Expression expression = equality();
+
+        while (matchAnyTokenType(AND)) {
+            Token operator = getPreviousToken();
+            Expression rightExpression = equality();
+            expression = new Expression.Logical(expression, operator, rightExpression);
         }
 
         return expression;

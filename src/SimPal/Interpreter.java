@@ -73,6 +73,20 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     @Override
+    public Object visitLogicalExpression(Expression.Logical expression) {
+        Object leftExpression = evaluateExpression(expression.leftExpression);
+        Token operator = expression.operator;
+        if (operator.tokenType == TokenType.OR) {
+            if (isTruthy(leftExpression)) return leftExpression;
+        }
+
+        if (operator.tokenType == TokenType.AND) {
+            if (!isTruthy(leftExpression)) return leftExpression;
+        }
+        return evaluateExpression(expression.rightExpression);
+    }
+
+    @Override
     public Object visitGroupingExpression(Expression.Grouping expression) {
         return evaluateExpression(expression);
     }
@@ -104,6 +118,16 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     @Override
+    public Void visitIfStatement(Statement.If statement) {
+        if (isTruthy(evaluateExpression(statement.condition))) {
+            execute(statement.thenBranch);
+        } else {
+            execute(statement.elseBranch);
+        }
+        return null;
+    }
+
+    @Override
     public Void visitPrintStatement(Statement.Print statement) {
         Object value = evaluateExpression(statement.expression);
         System.out.println(stringify(value));
@@ -117,6 +141,14 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
             value = evaluateExpression(statement.initializer);
         }
         environment.define(statement.name.lexeme, value);
+        return null;
+    }
+
+    @Override
+    public Void visitWhileStatement(Statement.While statement) {
+        while (isTruthy(evaluateExpression(statement.condition))) {
+            execute(statement.body);
+        }
         return null;
     }
 

@@ -18,6 +18,7 @@ public class GenerateAST {
                 "Binary   : Expression leftExpression, Token operator, Expression rightExpression",
                 "Grouping : Expression expression",
                 "Literal  : Object value",
+                "Logical  : Expression leftExpression, Token operator, Expression rightExpression",
                 "Unary    : Token operator, Expression rightExpression",
                 "Variable : Token name"
         ));
@@ -25,8 +26,11 @@ public class GenerateAST {
         defineAST(outputDirectory, "Statement", Arrays.asList(
                 "Block      : List<Statement> statements",
                 "CompleteExpression : Expression expression",
+                "If         : Expression condition, Statement thenBranch," +
+                        " Statement elseBranch",
                 "Print      : Expression expression",
-                "Var        : Token name, Expression initializer"
+                "Var        : Token name, Expression initializer",
+                "While      : Expression condition, Statement body"
         ));
     }
 

@@ -10,6 +10,8 @@ abstract class Expression {
 
         R visitLiteralExpression(Literal expression);
 
+        R visitLogicalExpression(Logical expression);
+
         R visitUnaryExpression(Unary expression);
 
         R visitVariableExpression(Variable expression);
@@ -71,6 +73,23 @@ abstract class Expression {
         }
 
         final Object value;
+    }
+
+    static class Logical extends Expression {
+        Logical(Expression leftExpression, Token operator, Expression rightExpression) {
+            this.leftExpression = leftExpression;
+            this.operator = operator;
+            this.rightExpression = rightExpression;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitLogicalExpression(this);
+        }
+
+        final Expression leftExpression;
+        final Token operator;
+        final Expression rightExpression;
     }
 
     static class Unary extends Expression {

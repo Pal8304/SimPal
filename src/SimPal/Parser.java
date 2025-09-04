@@ -41,8 +41,11 @@ term           → factor ( ( "-" | "+" ) factor )* ;
 
 factor         → unary ( ( "/" | "*" ) unary )* ;
 
-unary          → ( "!" | "-" ) unary
-               | primary ;
+unary          → ( "!" | "-" ) unary | call ;
+
+call           → primary ( "(" arguments? ")" )* ;
+
+arguments      → expression ( "," expression )* ;
 
 primary        → "true" | "false" | "nil"
                | NUMBER | STRING
@@ -54,8 +57,13 @@ primary        → "true" | "false" | "nil"
 
 program        → declaration* EOF ;
 
-declaration    → varDeclaration
+declaration    → funDeclaration
+                |varDeclaration
                | statement ;
+
+funDeclaration        → "fun" function ;
+
+function       → IDENTIFIER "(" parameters? ")" block ;
 
 varDeclaration        → "var" IDENTIFIER ( "=" expression )? ";" ;
 
@@ -106,6 +114,9 @@ public class Parser {
 
     private Statement declaration() {
         try {
+            if (matchAnyTokenType(FUN)) {
+                return function("function");
+            }
             if (matchAnyTokenType(VAR)) {
                 return varDeclaration();
             }
@@ -114,6 +125,29 @@ public class Parser {
             synchronize();
             return null;
         }
+    }
+
+    private Statement.Function function(String kind) {
+        Token functionName = consume(IDENTIFIER, "Expect " + kind + " name.");
+        consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
+
+        List<Token> parameters = new ArrayList<>();
+
+        if (!checkTokenType(RIGHT_PAREN)) {
+            do {
+                if (parameters.size() >= 255) {
+                    error(peekCurrentToken(), "Can't have more than 255 parameters.");
+                }
+
+                parameters.add(
+                        consume(IDENTIFIER, "Expect parameter name."));
+            } while (matchAnyTokenType(COMMA));
+        }
+        consume(RIGHT_PAREN, "Expect ')' after parameters.");
+
+        consume(LEFT_BRACE, "Expect '{' before " + kind + " body.");
+        List<Statement> body = block();
+        return new Statement.Function(functionName, parameters, body);
     }
 
     private Statement varDeclaration() {
@@ -323,7 +357,36 @@ public class Parser {
             Expression rightExpression = unary();
             return new Expression.Unary(operator, rightExpression);
         }
-        return primary();
+        return call();
+    }
+
+    private Expression call() {
+        Expression expression = primary();
+
+        while (true) {
+            if (matchAnyTokenType(LEFT_PAREN)) {
+                expression = finishCall(expression);
+            } else {
+                break;
+            }
+        }
+        return expression;
+    }
+
+    private Expression finishCall(Expression callee) {
+        List<Expression> arguments = new ArrayList<>();
+        if (!checkTokenType(RIGHT_PAREN)) {
+            do {
+                if (arguments.size() >= 255) {
+                    error(peekCurrentToken(), "Can't have more than 255 arguments.");
+                }
+                arguments.add(expression());
+            } while (matchAnyTokenType(COMMA));
+        }
+
+        Token paren = consume(RIGHT_PAREN, "Expect ')' after arguments.");
+
+        return new Expression.Call(callee, paren, arguments);
     }
 
     private Expression primary() {

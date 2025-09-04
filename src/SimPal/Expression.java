@@ -1,10 +1,14 @@
 package SimPal;
 
+import java.util.List;
+
 abstract class Expression {
     interface Visitor<R> {
         R visitAssignExpression(Assign expression);
 
         R visitBinaryExpression(Binary expression);
+
+        R visitCallExpression(Call expression);
 
         R visitGroupingExpression(Grouping expression);
 
@@ -47,6 +51,23 @@ abstract class Expression {
         final Expression leftExpression;
         final Token operator;
         final Expression rightExpression;
+    }
+
+    static class Call extends Expression {
+        Call(Expression callee, Token paren, List<Expression> arguments) {
+            this.callee = callee;
+            this.paren = paren;
+            this.arguments = arguments;
+        }
+
+        @Override
+        <R> R accept(Visitor<R> visitor) {
+            return visitor.visitCallExpression(this);
+        }
+
+        final Expression callee;
+        final Token paren;
+        final List<Expression> arguments;
     }
 
     static class Grouping extends Expression {

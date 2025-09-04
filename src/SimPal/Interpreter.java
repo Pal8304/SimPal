@@ -3,11 +3,32 @@ package SimPal;
 import SimPal.Errors.DivideByZeroError;
 import SimPal.Errors.SimPalRuntimeError;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Interpreter implements Expression.Visitor<Object>, Statement.Visitor<Void> {
 
-    Environment environment = new Environment();
+    final Environment globals = new Environment();
+    private Environment environment = globals;
+
+    Interpreter() {
+        globals.define("clock", new SimPalCallable() {
+            @Override
+            public int arity() {
+                return 0;
+            }
+
+            @Override
+            public Object call(Interpreter interpreter, List<Object> arguments) {
+                return (double) System.currentTimeMillis() / 1000;
+            }
+
+            @Override
+            public String toString() {
+                return "<native fn>";
+            }
+        });
+    }
 
     @Override
     public Object visitAssignExpression(Expression.Assign expression) {
@@ -107,6 +128,31 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     }
 
     @Override
+    public Object visitCallExpression(Expression.Call expression) {
+        Object callee = evaluateExpression(expression.callee);
+
+        List<Object> arguments = new ArrayList<>();
+        for (Expression argument : expression.arguments) {
+            arguments.add(evaluateExpression(argument));
+        }
+
+        if (!(callee instanceof SimPalCallable)) {
+            throw new SimPalRuntimeError(expression.paren,
+                    "Can only call functions and classes.");
+        }
+
+        SimPalCallable function = (SimPalCallable) callee;
+
+        if (arguments.size() != function.arity()) {
+            throw new SimPalRuntimeError(expression.paren, "Expected " +
+                    function.arity() + " arguments but got " +
+                    arguments.size() + ".");
+        }
+
+        return function.call(this, arguments);
+    }
+
+    @Override
     public Object visitVariableExpression(Expression.Variable expression) {
         return environment.get(expression.name);
     }
@@ -114,6 +160,13 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     @Override
     public Void visitCompleteExpressionStatement(Statement.CompleteExpression statement) {
         evaluateExpression(statement.expression);
+        return null;
+    }
+
+    @Override
+    public Void visitFunctionStatement(Statement.Function statement) {
+        SimPalFunction function = new SimPalFunction(statement);
+        environment.define(statement.name.lexeme, function);
         return null;
     }
 
@@ -158,7 +211,7 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
         return null;
     }
 
-    private void executeBlock(List<Statement> statements, Environment environment) {
+    void executeBlock(List<Statement> statements, Environment environment) {
         Environment previous = this.environment;
         try {
             this.environment = environment;

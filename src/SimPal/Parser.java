@@ -71,8 +71,11 @@ statement      → completeExpression
                 | forStatement
                | ifStatement
                | printStatement
+               | returnStatement
                | whileStatement
                | block ;
+
+returnStatement     → "return" expression? ";" ;
 
 whileStatement      → "while" "(" expression ")" statement ;
 
@@ -165,6 +168,7 @@ public class Parser {
         if (matchAnyTokenType(FOR)) return forStatement();
         if (matchAnyTokenType(IF)) return ifStatement();
         if (matchAnyTokenType(PRINT)) return printStatement();
+        if (matchAnyTokenType(RETURN)) return returnStatement();
         if (matchAnyTokenType(WHILE)) return whileStatement();
         if (matchAnyTokenType(LEFT_BRACE)) return new Statement.Block(block());
         return expressionStatement();
@@ -234,6 +238,17 @@ public class Parser {
         Expression value = expression();
         consume(SEMICOLON, "Expect ';' after value.");
         return new Statement.Print(value);
+    }
+
+    private Statement returnStatement() {
+        Token keyword = getPreviousToken();
+        Expression expression = null;
+        if (!checkTokenType(SEMICOLON)) {
+            expression = expression();
+        }
+
+        consume(SEMICOLON, "Expect ';' after return value.");
+        return new Statement.Return(keyword, expression);
     }
 
     private Statement whileStatement() {

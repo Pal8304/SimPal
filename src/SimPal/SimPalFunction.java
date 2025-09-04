@@ -3,10 +3,12 @@ package SimPal;
 import java.util.List;
 
 public class SimPalFunction implements SimPalCallable {
-    private Statement.Function declaration;
+    private final Statement.Function declaration;
+    private final Environment closure;
 
-    SimPalFunction(Statement.Function declaration) {
+    SimPalFunction(Statement.Function declaration, Environment closure) {
         this.declaration = declaration;
+        this.closure = closure;
     }
 
     @Override
@@ -16,14 +18,19 @@ public class SimPalFunction implements SimPalCallable {
 
     @Override
     public Object call(Interpreter interpreter, List<Object> arguments) {
-        Environment environment = new Environment(interpreter.globals);
+        Environment environment = new Environment(closure);
 
         for (int i = 0; i < declaration.params.size(); i++) {
             environment.define(declaration.params.get(i).lexeme,
                     arguments.get(i));
         }
 
-        interpreter.executeBlock(declaration.body, environment);
+        try {
+            interpreter.executeBlock(declaration.body, environment);
+        } catch (SimPalReturn returnValue) {
+            return returnValue.value;
+        }
+
         return null;
     }
 

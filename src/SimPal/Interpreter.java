@@ -165,7 +165,7 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
 
     @Override
     public Void visitFunctionStatement(Statement.Function statement) {
-        SimPalFunction function = new SimPalFunction(statement);
+        SimPalFunction function = new SimPalFunction(statement, environment);
         environment.define(statement.name.lexeme, function);
         return null;
     }
@@ -174,7 +174,7 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     public Void visitIfStatement(Statement.If statement) {
         if (isTruthy(evaluateExpression(statement.condition))) {
             execute(statement.thenBranch);
-        } else {
+        } else if (statement.elseBranch != null) {
             execute(statement.elseBranch);
         }
         return null;
@@ -185,6 +185,14 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
         Object value = evaluateExpression(statement.expression);
         System.out.println(stringify(value));
         return null;
+    }
+
+    @Override
+    public Void visitReturnStatement(Statement.Return statement) {
+        Object value = null;
+        if (statement.value != null) value = evaluateExpression(statement.value);
+
+        throw new SimPalReturn(value);
     }
 
     @Override

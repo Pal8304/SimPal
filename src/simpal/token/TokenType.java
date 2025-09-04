@@ -1,4 +1,4 @@
-package SimPal;
+package simpal.token;
 
 public enum TokenType {
     // Single-character tokens.

@@ -1,6 +1,6 @@
-package SimPal.Errors;
+package simpal.errors;
 
-import SimPal.Token;
+import simpal.token.Token;
 
 public class SimPalRuntimeError extends RuntimeException {
     public final Token token;

@@ -1,4 +1,4 @@
-package SimPal.Errors;
+package simpal.errors;
 
 public class DivideByZeroError extends RuntimeException {
     public DivideByZeroError(){

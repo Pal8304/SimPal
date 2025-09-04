@@ -1,4 +1,6 @@
-package SimPal;
+package simpal.debugger;
+
+import simpal.lang.Expression;
 
 public class ASTPrinter implements Expression.Visitor<String> {
     String print(Expression expression) {
@@ -8,6 +10,11 @@ public class ASTPrinter implements Expression.Visitor<String> {
     @Override
     public String visitBinaryExpression(Expression.Binary expression) {
         return parenthesize(expression.operator.lexeme, expression.leftExpression, expression.rightExpression);
+    }
+
+    @Override
+    public String visitCallExpression(Expression.Call expression) {
+        return "";
     }
 
     @Override
@@ -24,6 +31,11 @@ public class ASTPrinter implements Expression.Visitor<String> {
     public String visitLiteralExpression(Expression.Literal expression) {
         if(expression.value == null) return "nil";
         return expression.value.toString();
+    }
+
+    @Override
+    public String visitLogicalExpression(Expression.Logical expression) {
+        return "";
     }
 
     @Override

@@ -1,10 +1,16 @@
-package SimPal;
+package simpal.parser;
+
+import simpal.lang.Expression;
+import simpal.SimPal;
+import simpal.lang.Statement;
+import simpal.token.Token;
+import simpal.token.TokenType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static SimPal.TokenType.*;
+import static simpal.token.TokenType.*;
 
 /* Initial Grammar:
 
@@ -103,11 +109,11 @@ public class Parser {
     private final List<Token> tokens;
     private int current = 0;
 
-    Parser(List<Token> tokens) {
+    public Parser(List<Token> tokens) {
         this.tokens = tokens;
     }
 
-    List<Statement> parse() {
+     public List<Statement> parse() {
         List<Statement> statements = new ArrayList<>();
         while (!isAtEnd()) {
             statements.add(declaration());

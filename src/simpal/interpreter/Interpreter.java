@@ -1,7 +1,15 @@
-package SimPal;
+package simpal.interpreter;
 
-import SimPal.Errors.DivideByZeroError;
-import SimPal.Errors.SimPalRuntimeError;
+import simpal.lang.Expression;
+import simpal.SimPal;
+import simpal.lang.Statement;
+import simpal.errors.DivideByZeroError;
+import simpal.errors.SimPalRuntimeError;
+import simpal.functions.SimPalCallable;
+import simpal.functions.SimPalFunction;
+import simpal.functions.SimPalReturn;
+import simpal.token.Token;
+import simpal.token.TokenType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +19,7 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     final Environment globals = new Environment();
     private Environment environment = globals;
 
-    Interpreter() {
+    public Interpreter() {
         globals.define("clock", new SimPalCallable() {
             @Override
             public int arity() {
@@ -219,7 +227,7 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
         return null;
     }
 
-    void executeBlock(List<Statement> statements, Environment environment) {
+    public void executeBlock(List<Statement> statements, Environment environment) {
         Environment previous = this.environment;
         try {
             this.environment = environment;

@@ -1,6 +1,7 @@
-package SimPal;
+package simpal.interpreter;
 
-import SimPal.Errors.SimPalRuntimeError;
+import simpal.errors.SimPalRuntimeError;
+import simpal.token.Token;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,11 +10,11 @@ public class Environment {
 
     final Environment enclosingEnvironment;
 
-    Environment() {
+    public Environment() {
         enclosingEnvironment = null;
     }
 
-    Environment(Environment environment) {
+    public Environment(Environment environment) {
         enclosingEnvironment = environment;
     }
 
@@ -33,7 +34,7 @@ public class Environment {
                 "Undefined variable '" + name.lexeme + "'.");
     }
 
-    void define(String name, Object value) {
+     public void define(String name, Object value) {
         values.put(name, value);
     }
 

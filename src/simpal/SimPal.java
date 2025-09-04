@@ -1,6 +1,12 @@
-package SimPal;
+package simpal;
 
-import SimPal.Errors.SimPalRuntimeError;
+import simpal.errors.SimPalRuntimeError;
+import simpal.interpreter.Interpreter;
+import simpal.lang.Statement;
+import simpal.parser.Parser;
+import simpal.scanner.Scanner;
+import simpal.token.Token;
+import simpal.token.TokenType;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -60,7 +66,7 @@ public class SimPal {
     }
 
     // ToDo: Add an abstraction like errorHandler or errorReporter
-    static void error(int lineNumber, String errorMessage) {
+    public static void error(int lineNumber, String errorMessage) {
         report(lineNumber, "", errorMessage);
     }
 
@@ -70,7 +76,7 @@ public class SimPal {
         hadError = true;
     }
 
-    static void error(Token token, String message) {
+    public static void error(Token token, String message) {
         if (token.tokenType == TokenType.EOF) {
             report(token.line, " at end", message);
         } else {
@@ -78,7 +84,7 @@ public class SimPal {
         }
     }
 
-    static void runtimeError(SimPalRuntimeError simPalRuntimeError) {
+    public static void runtimeError(SimPalRuntimeError simPalRuntimeError) {
         System.err.println(simPalRuntimeError.getMessage() + "\n[line " + simPalRuntimeError.token.line + "]");
         hadRuntimeError = true;
     }

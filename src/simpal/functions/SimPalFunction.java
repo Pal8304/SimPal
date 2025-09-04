@@ -1,4 +1,8 @@
-package SimPal;
+package simpal.functions;
+
+import simpal.interpreter.Environment;
+import simpal.interpreter.Interpreter;
+import simpal.lang.Statement;
 
 import java.util.List;
 
@@ -6,7 +10,7 @@ public class SimPalFunction implements SimPalCallable {
     private final Statement.Function declaration;
     private final Environment closure;
 
-    SimPalFunction(Statement.Function declaration, Environment closure) {
+    public SimPalFunction(Statement.Function declaration, Environment closure) {
         this.declaration = declaration;
         this.closure = closure;
     }

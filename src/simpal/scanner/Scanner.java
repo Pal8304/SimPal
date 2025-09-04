@@ -1,11 +1,15 @@
-package SimPal;
+package simpal.scanner;
+
+import simpal.SimPal;
+import simpal.token.Token;
+import simpal.token.TokenType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static SimPal.TokenType.*;
+import static simpal.token.TokenType.*;
 
 /*
 ToDo:
@@ -42,11 +46,11 @@ public class Scanner {
         keywords.put("while", WHILE);
     }
 
-    Scanner(String source) {
+    public Scanner(String source) {
         this.source = source;
     }
 
-    List<Token> scanTokens() {
+    public List<Token> scanTokens() {
         while (!isAtEnd()) {
             start = current;
             scanToken();

@@ -12,95 +12,6 @@ import java.util.List;
 
 import static simpal.token.TokenType.*;
 
-/* Initial Grammar:
-
-expression     → literal
-               | unary
-               | binary
-               | grouping ;
-
-literal        → NUMBER | STRING | "true" | "false" | "nil" ;
-grouping       → "(" expression ")" ;
-unary          → ( "-" | "!" ) expression ;
-binary         → expression operator expression ;
-operator       → "==" | "!=" | "<" | "<=" | ">" | ">="
-               | "+"  | "-"  | "*" | "/" ;
-
-*/
-
-/* New Grammar
-
-expression     → assignment ;
-
-assignment     → IDENTIFIER "=" assignment
-               | logic_or ;
-
-logic_or       → logic_and ( "or" logic_and )* ;
-
-logic_and      → equality ( "and" equality )* ;
-
-equality       → comparison ( ( "!=" | "==" ) comparison )* ;
-
-comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
-
-term           → factor ( ( "-" | "+" ) factor )* ;
-
-factor         → unary ( ( "/" | "*" ) unary )* ;
-
-unary          → ( "!" | "-" ) unary | call ;
-
-call           → primary ( "(" arguments? ")" )* ;
-
-arguments      → expression ( "," expression )* ;
-
-primary        → "true" | "false" | "nil"
-               | NUMBER | STRING
-               | "(" expression ")"
-               | IDENTIFIER ;
- */
-
-/* Added Newer Grammar ( for handling statements )
-
-program        → declaration* EOF ;
-
-declaration    → funDeclaration
-                |varDeclaration
-               | statement ;
-
-funDeclaration        → "fun" function ;
-
-function       → IDENTIFIER "(" parameters? ")" block ;
-
-varDeclaration        → "var" IDENTIFIER ( "=" expression )? ";" ;
-
-statement      → completeExpression
-                | forStatement
-               | ifStatement
-               | printStatement
-               | returnStatement
-               | whileStatement
-               | block ;
-
-returnStatement     → "return" expression? ";" ;
-
-whileStatement      → "while" "(" expression ")" statement ;
-
-forStatement        → "for" "(" ( varDeclaration | completeExpression | ";" )
-                 expression? ";"
-                 expression? ")" statement ;
-
-ifStatement         → "if" "(" expression ")" statement
-               ( "else" statement )? ;
-
-block          → "{" declaration* "}" ;
-
-completeExpression       → expression ";" ;
-
-printStatement      → "print" expression ";" ;
-
- */
-
-
 public class Parser {
 
     private static class ParseError extends RuntimeException {
@@ -113,7 +24,11 @@ public class Parser {
         this.tokens = tokens;
     }
 
-     public List<Statement> parse() {
+    /**
+     * Parses program following the grammar, Program → Declaration* EOF
+     * @return List of statements
+     */
+    public List<Statement> parse() {
         List<Statement> statements = new ArrayList<>();
         while (!isAtEnd()) {
             statements.add(declaration());
@@ -267,7 +182,7 @@ public class Parser {
     }
 
     private List<Statement> block() {
-        List<Statement> statements = new ArrayList<Statement>();
+        List<Statement> statements = new ArrayList<>();
         while (!isAtEnd() && !checkTokenType(RIGHT_BRACE)) {
             statements.add(declaration());
         }
@@ -496,10 +411,20 @@ public class Parser {
 
     }
 
+    /**
+     * Provides the current token that is being pointed to
+     *
+     * @return Token current token
+     */
     private Token peekCurrentToken() {
         return tokens.get(current);
     }
 
+    /**
+     * Checks if the End of File (EOF) has been reached
+     *
+     * @return boolean if EOF is reached
+     */
     private boolean isAtEnd() {
         return peekCurrentToken().tokenType == EOF;
     }

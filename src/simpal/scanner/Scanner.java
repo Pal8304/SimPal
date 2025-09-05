@@ -50,6 +50,11 @@ public class Scanner {
         this.source = source;
     }
 
+    /**
+     * Tokenizes the entire string of source code and finally adds EOF at the end
+     *
+     * @return list of tokens
+     */
     public List<Token> scanTokens() {
         while (!isAtEnd()) {
             start = current;
@@ -59,10 +64,18 @@ public class Scanner {
         return tokens;
     }
 
+    /**
+     * Checks our current pointer has reached end of the provided source code.
+     *
+     * @return true if end of source code is reached else false
+     */
     private boolean isAtEnd() {
         return current >= source.length();
     }
 
+    /**
+     * Scans token by matching each character with various operators and alphanumerics
+     */
     private void scanToken() {
         char nextCharacter = moveToNextCharacter();
         switch (nextCharacter) {
@@ -141,19 +154,41 @@ public class Scanner {
         }
     }
 
+    /**
+     * Gets the current character that is being pointed to and increments the current pointer
+     *
+     * @return character from the source code which the current pointer points
+     */
     private char moveToNextCharacter() {
         return source.charAt(current++);
     }
 
-    private void addToken(TokenType tokenType) {
-        addToken(tokenType, null);
-    }
-
+    /**
+     * Adds new token to the token list ( token is considered a string between start and current pointers )
+     *
+     * @param tokenType Provides info about token type
+     * @param literal   The literal value of the token
+     */
     private void addToken(TokenType tokenType, Object literal) {
         String text = source.substring(start, current);
         tokens.add(new Token(tokenType, text, literal, line));
     }
 
+    /**
+     * Adds new token list with empty literal
+     *
+     * @param tokenType Provides info about token type
+     */
+    private void addToken(TokenType tokenType) {
+        addToken(tokenType, null);
+    }
+
+    /**
+     * Checks if the current character in the source matches with expected character
+     *
+     * @param expected The character that is expected
+     * @return True if the current character matches with the expected character
+     */
     private boolean match(char expected) {
         if (isAtEnd()) return false;
         if (source.charAt(current) != expected) return false;
@@ -162,16 +197,31 @@ public class Scanner {
         return true;
     }
 
+    /**
+     * Gets the current character that is being pointed to by current pointer, and in case of end of source, returns '\0'
+     *
+     * @return Character that is being pointed in the source code
+     */
     private char peek() {
         if (isAtEnd()) return '\0';
         return source.charAt(current);
     }
 
+    /**
+     * Gets just next character to current character that is being pointed to
+     *
+     * @return Next character from the source code
+     */
     private char peekNext() {
         if (current + 1 >= source.length()) return '\0';
         return source.charAt(current + 1);
     }
 
+    // ToDo: var a = """a""" works in cpp and not in this language, later figure out why, and fix it if it's a mistake
+
+    /**
+     * Evaluates strings for the scanner, any number of character between "" and adds it to the token list
+     */
     private void string() {
         while (peek() != '"' && !isAtEnd()) {
             if (peek() == '\n') line++;
@@ -189,10 +239,10 @@ public class Scanner {
         addToken(STRING, value);
     }
 
-    private boolean isDigit(char ch) {
-        return (ch >= '0' && ch <= '9');
-    }
-
+    /**
+     * Evaluates numbers, uses regex like [0-9]*.?[0-9]* and adds it to the token list
+     * That is first takes all digits before decimal point and then if decimal point is found takes all numbers after it
+     */
     private void number() {
         while (isDigit(peek())) moveToNextCharacter();
 
@@ -206,14 +256,19 @@ public class Scanner {
 
     }
 
-    private boolean isAlpha(char ch) {
-        return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch == '_');
+    /**
+     * Checks if character is a digit
+     *
+     * @param ch Character to be checked
+     * @return True if it is a digit else false
+     */
+    private boolean isDigit(char ch) {
+        return (ch >= '0' && ch <= '9');
     }
 
-    private boolean isAlphaNumeric(char ch) {
-        return isAlpha(ch) || isDigit(ch);
-    }
-
+    /**
+     * Adds identifier in the token list
+     */
     private void identifier() {
         while (isAlphaNumeric(peek())) moveToNextCharacter();
 
@@ -222,5 +277,25 @@ public class Scanner {
         if (tokenType == null) tokenType = IDENTIFIER;
 
         addToken(tokenType);
+    }
+
+    /**
+     * Checks if a given character is alphanumeric (alphabet or digit or underscore)
+     *
+     * @param ch Character to be checked
+     * @return True if character is alphanumeric
+     */
+    private boolean isAlphaNumeric(char ch) {
+        return isAlpha(ch) || isDigit(ch);
+    }
+
+    /**
+     * Checks if a character is an alphabet or underscore
+     *
+     * @param ch Character to be checked
+     * @return true in case of alphabet
+     */
+    private boolean isAlpha(char ch) {
+        return (ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch == '_');
     }
 }

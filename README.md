@@ -1,24 +1,7 @@
 # SimPal 
-### Just a rudimentary interpreted basic 
-### With a pun name
+#### Just a rudimentary interpreted language with a pun name
 
 ## Language Grammar
-
-```
-Initial Language Grammar:
-
-expression     → literal
-                | unary
-                | binary
-                | grouping ;
-
-literal        → NUMBER | STRING | "true" | "false" | "nil" ;
-grouping       → "(" expression ")" ;
-unary          → ( "-" | "!" ) expression ;
-binary         → expression operator expression ;
-operator       → "==" | "!=" | "<" | "<=" | ">" | ">="
-                | "+"  | "-"  | "*" | "/" ;
-```
 
 ```
 Language Grammar
@@ -26,37 +9,37 @@ Language Grammar
 program        → declaration* EOF ;
 
 declaration    → funDeclaration
-                |varDeclaration
+               |varDeclaration
                | statement ;
 
-funDeclaration        → "fun" function ;
+funDeclaration → "fun" function ;
 
 function       → IDENTIFIER "(" parameters? ")" block ;
 
-varDeclaration        → "var" IDENTIFIER ( "=" expression )? ";" ;
+varDeclaration → "var" IDENTIFIER ( "=" expression )? ";" ;
 
 statement      → completeExpression
-                | forStatement
+               | forStatement
                | ifStatement
                | printStatement
                | returnStatement
                | whileStatement
                | block ;
 
-returnStatement     → "return" expression? ";" ;
+returnStatement → "return" expression? ";" ;
 
-whileStatement      → "while" "(" expression ")" statement ;
+whileStatement  → "while" "(" expression ")" statement ;
 
-forStatement        → "for" "(" ( varDeclaration | completeExpression | ";" )
+forStatement    → "for" "(" ( varDeclaration | completeExpression | ";" )
                  expression? ";"
                  expression? ")" statement ;
 
-ifStatement         → "if" "(" expression ")" statement
+ifStatement     → "if" "(" expression ")" statement
                ( "else" statement )? ;
 
-block          → "{" declaration* "}" ;
+block           → "{" declaration* "}" ;
 
-completeExpression       → expression ";" ;
+completeExpression → expression ";" ;
 
 expression     → assignment ;
 
@@ -87,3 +70,19 @@ primary        → "true" | "false" | "nil"
                | IDENTIFIER ;
 
 ```
+Currently, it supports: 
+
+- [x] Binary operations ( +, -, /, *) 
+- [x] Unary operations ( -, ~)
+- [x] Print statement 
+- [ ] User input 
+- [x] Variable declaration
+- [x] Conditional Statements ( if, else ) 
+- [x] Boolean operations ( and, or )
+- [x] Looping statements ( for loop, while loops )
+- [ ] Break and continue statements 
+- [x] User defined functions 
+- [ ] User defined classes and objects
+- [ ] Built-in functions 
+- [ ] Import support 
+- [ ] Mutable variables

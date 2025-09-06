@@ -2,6 +2,7 @@ package simpal;
 
 import simpal.errors.SimPalRuntimeError;
 import simpal.interpreter.Interpreter;
+import simpal.interpreter.Resolver;
 import simpal.lang.Statement;
 import simpal.parser.Parser;
 import simpal.scanner.Scanner;
@@ -82,6 +83,12 @@ public class SimPal {
         Parser parser = new Parser(tokens);
         List<Statement> statements = parser.parse();
 
+        if (hadError) return;
+
+        Resolver resolver = new Resolver(interpreter);
+        resolver.resolve(statements);
+
+        // Stop if there was a resolution error.
         if (hadError) return;
 
         interpreter.interpret(statements);

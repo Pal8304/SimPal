@@ -1,23 +1,26 @@
 package simpal.interpreter;
 
-import simpal.lang.Expression;
 import simpal.SimPal;
-import simpal.lang.Statement;
 import simpal.errors.DivideByZeroError;
 import simpal.errors.SimPalRuntimeError;
 import simpal.functions.SimPalCallable;
 import simpal.functions.SimPalFunction;
 import simpal.functions.SimPalReturn;
+import simpal.lang.Expression;
+import simpal.lang.Statement;
 import simpal.token.Token;
 import simpal.token.TokenType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Interpreter implements Expression.Visitor<Object>, Statement.Visitor<Void> {
 
     final Environment globals = new Environment();
     private Environment environment = globals;
+    private final Map<Expression, Integer> locals = new HashMap<>();
 
     public Interpreter() {
         globals.define("clock", new SimPalCallable() {
@@ -41,7 +44,14 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     @Override
     public Object visitAssignExpression(Expression.Assign expression) {
         Object value = evaluateExpression(expression.value);
-        environment.assign(expression.name, value);
+
+        Integer distance = locals.get(expression);
+        if (distance != null) {
+            environment.assignAt(distance, expression.name, value);
+        } else {
+            globals.assign(expression.name, value);
+        }
+
         return value;
     }
 
@@ -162,7 +172,7 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
 
     @Override
     public Object visitVariableExpression(Expression.Variable expression) {
-        return environment.get(expression.name);
+        return lookUpVariable(expression.name, expression);
     }
 
     @Override
@@ -247,6 +257,19 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
             }
         } catch (SimPalRuntimeError simPalRuntimeError) {
             SimPal.runtimeError(simPalRuntimeError);
+        }
+    }
+
+    void resolve(Expression expression, int depth) {
+        locals.put(expression, depth);
+    }
+
+    private Object lookUpVariable(Token name, Expression expression) {
+        Integer distance = locals.get(expression);
+        if (distance != null) {
+            return environment.getAt(distance, name.lexeme);
+        } else {
+            return globals.get(name);
         }
     }
 

@@ -73,6 +73,8 @@ primary        → "true" | "false" | "nil"
 Currently, it supports: 
 
 - [x] Binary operations ( +, -, /, *) 
+- [ ] Power operator 
+- [ ] Modulo operator 
 - [x] Unary operations ( -, ~)
 - [x] Print statement 
 - [ ] User input 
@@ -86,3 +88,4 @@ Currently, it supports:
 - [ ] Built-in functions 
 - [ ] Import support 
 - [ ] Mutable variables
+- [ ] Report unused local variables

@@ -2,7 +2,7 @@
 
 #### Just a rudimentary interpreted language with a pun name
 
-It is built with help of [Crafting Interpreters](www.craftinginterpreters.com). Frankly built following it completely.
+It is built with help of [Crafting Interpreters](https://www.craftinginterpreters.com). Frankly built following it completely.
 
 ## Language Grammar
 

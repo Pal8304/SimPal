@@ -26,6 +26,7 @@ public class Parser {
 
     /**
      * Parses program following the grammar, Program → Declaration* EOF
+     *
      * @return List of statements
      */
     public List<Statement> parse() {
@@ -36,6 +37,12 @@ public class Parser {
         return statements;
     }
 
+    /**
+     * Following the grammar declaration → funcDeclaration | varDeclaration | Statement
+     * Uses synchronization in case of any parsing errors
+     *
+     * @return Statement can be function, variable declaration or just a statement
+     */
     private Statement declaration() {
         try {
             if (matchAnyTokenType(FUN)) {
@@ -51,6 +58,12 @@ public class Parser {
         }
     }
 
+    /**
+     * Parses the entire function, following the format: fun <function_name> ( comma_separated parameters ) { function body }
+     *
+     * @param kind The type of function
+     * @return Statement of function
+     */
     private Statement.Function function(String kind) {
         Token functionName = consume(IDENTIFIER, "Expect " + kind + " name.");
         consume(LEFT_PAREN, "Expect '(' after " + kind + " name.");
@@ -74,6 +87,11 @@ public class Parser {
         return new Statement.Function(functionName, parameters, body);
     }
 
+    /**
+     * Parses variable declaration, following the format var <variable_name> ? ( "=" variable value ;
+     *
+     * @return Statement parsed variable declaration
+     */
     private Statement varDeclaration() {
         Token name = consume(IDENTIFIER, "Expect variable name.");
         Expression initializer = null;
@@ -85,6 +103,13 @@ public class Parser {
         return new Statement.Var(name, initializer);
     }
 
+
+    /**
+     * Follows the grammar statement → completeExpression | forStatement | ifStatement | printStatement | returnStatement | whileStatement | block
+     * By dividing then based on tokenType
+     *
+     * @return Specific statement based on match
+     */
     private Statement statement() {
         if (matchAnyTokenType(FOR)) return forStatement();
         if (matchAnyTokenType(IF)) return ifStatement();
@@ -97,6 +122,13 @@ public class Parser {
 
     /*
     ToDO: Add Support for break and continue statements
+     */
+
+    /**
+     * Statement that represents "for-loop", it follows template of "for-loop" i.e. for("some initializer" ; "condition"; "increment of some kind ") { body of loop }
+     * It uses while loop implementation in order to loop, thus combines while loop with initializer, condition, increment and body
+     *
+     * @return Statement representing "for-loop"
      */
     private Statement forStatement() {
         consume(LEFT_PAREN, "Expect '(' after 'for'.");
@@ -139,6 +171,7 @@ public class Parser {
 
         return body;
     }
+
 
     private Statement ifStatement() {
         consume(LEFT_PAREN, "Expect '(' after 'if'.");

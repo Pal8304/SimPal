@@ -4,6 +4,14 @@
 
 It is built with help of [Crafting Interpreters](https://www.craftinginterpreters.com). Frankly built following it completely.
 
+## How to execute SimPal Code
+
+- Make sure you have [Java](https://www.java.com/en/download/manual.jsp) installed 
+- Download the ``SimPal.jar`` file from [release](https://github.com/Pal8304/SimPal/releases)
+- Run this command
+  - For terminal execution: `` java -cp simpal.jar src/simpal/SimPal.java``
+  - For execution from a text file   ``java -cp simpal.jar src/simpal/SimPal.java <path of text file>``
+
 ## Language Grammar
 
 ```
@@ -163,3 +171,4 @@ for (var i = 0; i < 20; i = i + 1) {
   print fib(i);
 }
 ```
+

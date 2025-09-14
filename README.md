@@ -7,10 +7,19 @@ It is built with help of [Crafting Interpreters](https://www.craftinginterpreter
 ## How to execute SimPal Code
 
 - Make sure you have [Java](https://www.java.com/en/download/manual.jsp) installed 
-- Download the ``SimPal.jar`` file from [release](https://github.com/Pal8304/SimPal/releases)
-- Run this command
-  - For terminal execution: `` java -cp simpal.jar src/simpal/SimPal.java``
-  - For execution from a text file   ``java -cp simpal.jar src/simpal/SimPal.java <path of text file>``
+- Using jar file: 
+  - Download the ``SimPal.jar`` file from [release](https://github.com/Pal8304/SimPal/releases)
+  - Run this command: 
+    - For terminal execution: `` java -cp simpal.jar src/simpal/SimPal.java``
+    - For execution from a input text file   ``java -cp simpal.jar src/simpal/SimPal.java <path of input text file>``
+    - For output in text file as well ``java -cp simpal.jar src/simpal/SimPal.java <path of input text file> <path of output text file`` ( this is yet to released in jar file )
+- Using git project clone/fork:
+  - Clone  ``` git clone https://github.com/Pal8304/SimPal.git ``` 
+  - Go to SimPal directory `` cd src/simpal``
+  - Run the following commands:
+    - For execution in terminal: ``java SimPal.java``
+    - For execution from input file: ``java SimPal.java <input text file>``
+    - For output of code in text file: ``java SimPal.java <input text file> <output text file>``
 
 ## Language Grammar
 
@@ -86,7 +95,7 @@ Currently, it supports:
 
 - [x] Binary operations ( ``+, -, /, *``)
 - [ ] Power operator
-- [x] Modulo operator
+- [x] Modulo operator (``%``)
 - [x] Unary operations (``-, ~``)
 - [x] Print statement ( ``print``)
 - [ ] User input
@@ -104,10 +113,28 @@ Currently, it supports:
 - [x] Single line comments ( ``//`` )
 - [ ] Multi line comments (``/* */``)
 - [ ] Print multiple values ( ``print a, b`` )
-- [X] Handle redundant brackets ( ``(((a + b)))`` )
-- [ ] Output file support like we have for input 
+- [x] Handle redundant brackets ( ``(((a + b)))`` )
+- [ ] Math Functions like absolute, sin, cos, etc
+- [x] Output file support like we have for input 
 
 ## SimPal Syntax
+
+### Keywords
+
+- **true** : Truthy boolean
+- **false**: Falsey boolean   
+- **print**: Prints output 
+- **or** : Short-circuited boolean `or` operator 
+- **and**: Short-circuited boolean `and` operator
+- **nil**: Null value 
+- **var**: Declares variable
+- **if**: Conditional `if` statement 
+- **else**: Conditional `else` statement
+- **for**: Looping `for` statement
+- **while**: Looping `while` statement
+- **fun**: Declaration of functions 
+
+### Sample code
 
 #### Variable Declaration
 
@@ -134,6 +161,7 @@ print a + b; // Addition
 print a - b; // Subtraction 
 print a * b; // Multiplication
 print a / b; // Division
+print a % b; // Modulus 
 ```
 
 ### Conditional Statements 

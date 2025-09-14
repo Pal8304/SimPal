@@ -12,6 +12,7 @@ import simpal.token.TokenType;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -31,10 +32,12 @@ public class SimPal {
      * @throws IOException if any input error occurs
      */
     public static void main(String[] args) throws IOException {
-        if (args.length > 1) {
+        if (args.length > 2) {
             System.out.println("Usage: SimPal.SimPal [script]");
         } else if (args.length == 1) {
             runFile(args[0]);
+        } else if (args.length == 2) {
+            runWithOutputFile(args[0], args[1]);
         } else {
             runPrompt();
         }
@@ -43,15 +46,26 @@ public class SimPal {
     /**
      * Runs the code using the given file path from file bytes attempts to execute  if file argument is given
      *
-     * @param filePath relative path of the file which has code to be executed
+     * @param inputFilePath relative path of the file which has code to be executed
      * @throws IOException if file is invalid or readAllBytes fails
      */
-    private static void runFile(String filePath) throws IOException {
-        byte[] fileBytes = Files.readAllBytes(Paths.get(filePath));
+    private static void runFile(String inputFilePath) throws IOException {
+        byte[] fileBytes = Files.readAllBytes(Paths.get(inputFilePath));
         run(new String(fileBytes, Charset.defaultCharset()));
 
         if (hadError) System.exit(65);
         if (hadRuntimeError) System.exit(70);
+    }
+
+    private static void runWithOutputFile(String inputFilePath, String outPutFilePath) throws IOException {
+        interpreter.outputFilePth = outPutFilePath;
+
+        // Clearing  output file
+        PrintWriter writer = new PrintWriter(outPutFilePath);
+        writer.print("");
+        writer.close();
+
+        runFile(inputFilePath);
     }
 
     /**

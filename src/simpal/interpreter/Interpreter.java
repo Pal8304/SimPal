@@ -2,6 +2,7 @@ package simpal.interpreter;
 
 import simpal.SimPal;
 import simpal.errors.DivideByZeroError;
+import simpal.errors.IOError;
 import simpal.errors.SimPalRuntimeError;
 import simpal.functions.SimPalCallable;
 import simpal.functions.SimPalFunction;
@@ -11,6 +12,8 @@ import simpal.lang.Statement;
 import simpal.token.Token;
 import simpal.token.TokenType;
 
+import java.io.FileWriter;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +24,7 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     final Environment globals = new Environment();
     private Environment environment = globals;
     private final Map<Expression, Integer> locals = new HashMap<>();
+    public String outputFilePth;
 
     public Interpreter() {
         globals.define("clock", new SimPalCallable() {
@@ -207,7 +211,19 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
     @Override
     public Void visitPrintStatement(Statement.Print statement) {
         Object value = evaluateExpression(statement.expression);
-        System.out.println(stringify(value));
+        if(outputFilePth == null || outputFilePth.isBlank()) {
+            System.out.println(stringify(value));
+        }
+        else {
+            try {
+                PrintWriter printWriter = new PrintWriter(new FileWriter(outputFilePth, true));
+                printWriter.println(stringify(value));
+                printWriter.close();
+            } catch (Exception e ) {
+                System.err.println("Exception: " + e.getMessage());
+                throw new IOError("Error while print in output file: " + outputFilePth, e);
+            }
+        }
         return null;
     }
 

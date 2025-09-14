@@ -79,9 +79,15 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
             case SLASH:
                 checkNumberOperands(operator, leftExpression, rightExpression);
                 if ((double) rightExpression == 0) {
-                    throw new DivideByZeroError();
+                    throw new DivideByZeroError("Division by zero is not possible.");
                 }
                 return (double) leftExpression / (double) rightExpression;
+            case MODULO:
+                checkNumberOperands(operator, leftExpression, rightExpression);
+                if ((double) rightExpression == 0) {
+                    throw new DivideByZeroError("Remainder when any number is divided by zero is not possible.");
+                }
+                return (double)leftExpression % (double)rightExpression;
             case STAR:
                 checkNumberOperands(operator, leftExpression, rightExpression);
                 return (double) leftExpression * (double) rightExpression;
@@ -127,7 +133,7 @@ public class Interpreter implements Expression.Visitor<Object>, Statement.Visito
 
     @Override
     public Object visitGroupingExpression(Expression.Grouping expression) {
-        return evaluateExpression(expression);
+        return evaluateExpression(expression.expression);
     }
 
     @Override

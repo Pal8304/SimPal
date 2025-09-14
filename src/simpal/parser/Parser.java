@@ -312,7 +312,7 @@ public class Parser {
 
     private Expression factor() {
         Expression expression = unary();
-        while (matchAnyTokenType(SLASH, STAR)) {
+        while (matchAnyTokenType(SLASH, STAR, MODULO)) {
             Token operator = getPreviousToken();
             Expression rightExpression = unary();
             expression = new Expression.Binary(expression, operator, rightExpression);

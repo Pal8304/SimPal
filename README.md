@@ -86,7 +86,7 @@ Currently, it supports:
 
 - [x] Binary operations ( ``+, -, /, *``)
 - [ ] Power operator
-- [ ] Modulo operator
+- [x] Modulo operator
 - [x] Unary operations (``-, ~``)
 - [x] Print statement ( ``print``)
 - [ ] User input
@@ -104,7 +104,8 @@ Currently, it supports:
 - [x] Single line comments ( ``//`` )
 - [ ] Multi line comments (``/* */``)
 - [ ] Print multiple values ( ``print a, b`` )
-- [ ] Handle redundant brackets ( ``print (a + b)`` )
+- [X] Handle redundant brackets ( ``(((a + b)))`` )
+- [ ] Output file support like we have for input 
 
 ## SimPal Syntax
 

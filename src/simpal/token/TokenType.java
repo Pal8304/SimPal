@@ -13,6 +13,7 @@ public enum TokenType {
     SEMICOLON,
     SLASH,
     STAR,
+    MODULO,
 
     // One or two character tokens.
     BANG,
@@ -46,6 +47,8 @@ public enum TokenType {
     TRUE,
     VAR,
     WHILE,
+    INT,
+    DOUBLE,
 
     EOF
 }
